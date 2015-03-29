@@ -10,59 +10,37 @@ object GoL {
     if (x != 0 || y != 0)
   } yield (x -> y)
 
-  def nextState(i: Int): Option[Symbol] = {
-    if (3 == i) Some('alive) else if (2 == i) None else Some('dead)
-  }
+  val rules = Map(3 -> Some('alive), 2 -> None).withDefaultValue(Some('dead))
 
   def countNeighbors(c: Set[(Int, Int)], x: Int, y: Int): Int = {
-    val n = neighborIndices(x, y)
-    n.filter(c.contains(_)).length
+    neighborIndices(x, y).filter(c.contains(_)).length
   }
 
   def neighborIndices(x: Int, y: Int): IndexedSeq[(Int, Int)] = {
-    neighborOffsets map {(a) => ((a._1 + x) -> (a._2 + y))}
-  }
-
-  def max(xs: List[Int]): Option[Int] = xs match {
-    case Nil => None
-    case List(x: Int) => Some(x)
-    case x :: y :: rest => max( (if (x > y) x else y) :: rest )
-  }
-
-  def minX(c: Set[(Int, Int)]): Int = {
-    c.map{(a) => a._1}.min
-  }
-
-  def maxX(c: Set[(Int, Int)]): Int = {
-    c.map{(a) => a._1}.max
-  }
-
-  def minY(c: Set[(Int, Int)]): Int = {
-    c.map{(a) => a._2}.min
-  }
-
-  def maxY(c: Set[(Int, Int)]): Int = {
-    c.map{(a) => a._2}.max
+    neighborOffsets map { (a) => ((a._1 + x) -> (a._2 + y)) }
   }
 
   def tick(c: Set[(Int, Int)]): Set[(Int, Int)] = {
 
-    // check the entire field between min and max x & y
-    var cc = c
-    var next: Option[Symbol] = None
-    for( x <- (minX(c) to maxX(c)).toList; y <- (minY(c) to maxY(c)).toList) {
-
-      next = nextState(countNeighbors(c, x, y))
-      cc = next match {
-        case None => cc
-        case Some(v: Symbol) => if('dead == v) cc - (x -> y) else cc + (x -> y)
+    // checking the entire field between min and max x & y
+    // TODO - use the neighborhood of all cells - would it be more practical?
+    var deceased: Set[(Int, Int)] = Set()
+    var born: Set[(Int, Int)] = Set()
+    locationsToCheck(c) foreach { (l) =>
+      rules(countNeighbors(c, l._1, l._2)) match {
+        case None =>
+        case Some(v: Symbol) => if ('dead == v) deceased += l else born += l
       }
     }
-    cc
+    c -- deceased ++ born
   }
 
-  def isAlive(c: Set[(Int, Int)], x: Int, y: Int): Boolean = {
-    c.contains(x -> y)
+  def locationsToCheck(c: Set[(Int, Int)]): Set[(Int, Int)] = {
+    val allX = c.map {_._1}
+    val allY = c.map {_._2}
+    (for {
+      x <- (allX.min to allX.max)
+      y <- (allY.min to allY.max)
+    } yield (x -> y)).toSet
   }
-
 }

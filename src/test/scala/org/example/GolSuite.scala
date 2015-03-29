@@ -6,11 +6,11 @@ import org.example.GoL._
 
 class GolSuite extends FunSuite {
 
-  test("death by overcrowding")(assert('dead == nextState(4).get))
-  test("birth")(assert('alive == nextState(3).get))
-  test("stable")(assert(None == nextState(2)))
-  test("death by loneliness")(assert('dead == nextState(1).get))
-  test("death by loneliness 2")(assert('dead == nextState(0).get))
+  test("death by overcrowding")(assert('dead == rules(4).get))
+  test("birth")(assert('alive == rules(3).get))
+  test("stable")(assert(None == rules(2)))
+  test("death by loneliness")(assert('dead == rules(1).get))
+  test("death by loneliness 2")(assert('dead == rules(0).get))
 
   // counting neighbors
 
@@ -20,7 +20,7 @@ class GolSuite extends FunSuite {
   }
 
   test("a single cell has no neighbors") {
-    val cells: Set[(Int, Int)] = Set((1, 2))
+    val cells: Set[(Int, Int)] = Set((1, 1))
     val neighbors = countNeighbors(cells, 1, 1)
     assert(0 == neighbors)
   }
@@ -44,16 +44,16 @@ class GolSuite extends FunSuite {
   test("single cell dies on tick"){
     var cells: Set[(Int, Int)] = Set((1,1))
     cells = tick(cells)
-    assert(!isAlive(cells, 1, 1))
+    assert(!cells.contains(1 -> 1))
   }
 
   test("a 2x2 square survives on tick"){
     var cells: Set[(Int, Int)] = Set((1, 1), (1, 2), (2, 1), (2, 2))
     cells = tick(cells)
-    assert(isAlive(cells, 1, 1))
-    assert(isAlive(cells, 1, 2))
-    assert(isAlive(cells, 2, 1))
-    assert(isAlive(cells, 2, 2))
+    assert(cells.contains(1 -> 1))
+    assert(cells.contains(1 -> 2))
+    assert(cells.contains(2 -> 1))
+    assert(cells.contains(2 -> 2))
   }
 
 }
