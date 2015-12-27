@@ -56,4 +56,21 @@ class GolSuite extends FunSuite {
     assert(cells.contains(2 -> 2))
   }
 
+  test("filtering"){
+
+    val s = Set(((1, 1), Some('alive)), (1 ->2, None))
+    val willBeAlive = willBe('alive)
+    val willBeDead = willBe('dead)
+    println(willBeAlive(s.head))
+    println(willBeDead(s.head))
+
+    val d2 = s collect {case (x: (_, _),Some('dead)) => x}
+    val b2 = s collect {case (x: (_, _),Some('alive)) => x}
+//    val d2 = s collect {case p @ ((_, _), Some('dead)) => p._1}
+    println(d2)
+    println(b2)
+    //    println(willBeAlive(s.head))
+//    println(willBeAlive((1, 1), Some('alive)))
+  }
+
 }
